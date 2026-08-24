@@ -50,7 +50,14 @@ export default function Dashboard() {
       ]);
 
       setOzet(ozetRes.data);
-      setAylikPerformans(performansRes.data);
+      const perfData = performansRes.data;
+      if (perfData.doktorPerformanslari) {
+        perfData.doktorPerformanslari = perfData.doktorPerformanslari.map(d => ({
+          ...d,
+          doktorTamAd: `${d.doktorUnvan || ''} ${d.doktorAd || ''} ${d.doktorSoyad || ''}`.trim()
+        }));
+      }
+      setAylikPerformans(perfData);
       setRandevuKaynaklari(kaynaklarRes.data);
       setSonRandevular(sonRandevularRes.data);
       
@@ -187,8 +194,8 @@ export default function Dashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={aylikPerformans.doktorPerformanslari} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="doktorAd" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}}/>
-                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} tickFormatter={(value) => `${value / 1000}k ₺`} />
+                <XAxis dataKey="doktorTamAd" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} /> 
+               <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} tickFormatter={(value) => `${value / 1000}k ₺`} />
                 <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                 <Tooltip cursor={{fill: '#f8fafc'}} />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }}/>
