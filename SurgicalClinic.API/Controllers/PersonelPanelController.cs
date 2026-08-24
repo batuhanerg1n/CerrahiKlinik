@@ -23,9 +23,9 @@ namespace SurgicalClinic.API.Controllers
         }
 
         [HttpGet("randevular/search")]
-        public async Task<IActionResult> GetRandevular([FromQuery] string? query, [FromQuery] RandevuDrum? durum, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetRandevular([FromQuery] string? query, [FromQuery] RandevuDrum? durum, [FromQuery] int? doktorId,[FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _personelService.GetRandevularAsync(query, durum, pageIndex, pageSize);
+            var result = await _personelService.GetRandevularAsync(query, durum,doktorId, pageIndex, pageSize);
             return Ok(result);
         }
         [HttpPut("randevular/{id}/durum")]
@@ -192,6 +192,13 @@ namespace SurgicalClinic.API.Controllers
                 return BadRequest(new { message });
             return Ok(new { message });
 
+        }
+
+        [HttpGet("hastalar/{id}/randevular")]
+        public async Task<IActionResult> GetHastaRandevulari(int id)
+        {
+            var result = await _personelService.GetHastaRandevulariAsync(id);
+            return Ok(result);
         }
     }
 }

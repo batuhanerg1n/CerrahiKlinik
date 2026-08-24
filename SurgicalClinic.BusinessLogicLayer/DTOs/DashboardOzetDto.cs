@@ -13,5 +13,6 @@ namespace SurgicalClinic.BusinessLogicLayer.DTOs
         public int AktifRandevuSayisi { get; set; }
         public int GunlukToplmHastaSayisi { get; set; }
         public decimal GunlukToplamGelir { get; set; }
+        public int TamamlananRandevuSayisi { get; set; }
     }
 }

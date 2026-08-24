@@ -12,7 +12,7 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Abstract
 {
     public interface IPersonelPanelService
     {
-        Task<PageResultDto<RandevuDetailDto>> GetRandevularAsync(String? query, RandevuDrum? drum, int pageIndex = 1, int PageSize= 10);
+        Task<PageResultDto<RandevuDetailDto>> GetRandevularAsync(String? query, RandevuDrum? drum, int? doktorId=null, int pageIndex = 1, int PageSize= 10);
         Task<bool> RandevuDurumGuncelleAsync(int randevuId, RandevuDrum yeniDurum);
 
         Task<IEnumerable<HastaDto>> GetHastalarAsync();
@@ -35,5 +35,6 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Abstract
         Task<IEnumerable<KullaniciListeDto>> GetKullanicilarAsync();
         Task<bool> KullaniciSilAsync(int kullanicId);
         Task<(bool Success, string Message)> RandevuGuncelleAsync(int randevuId, RandevuGuncelleDto dto);
+        Task<IEnumerable<RandevuDetailDto>> GetHastaRandevulariAsync(int hastaId);
     }
 }

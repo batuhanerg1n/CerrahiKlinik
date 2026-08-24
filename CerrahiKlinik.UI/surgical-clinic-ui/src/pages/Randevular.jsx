@@ -13,6 +13,7 @@ export default function Randevular() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [doktorFilter, setDoktorFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; 
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -29,7 +30,7 @@ export default function Randevular() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
+  }, [searchQuery, statusFilter, doktorFilter]);
 
   const fetchRandevular = async () => {
     try {
@@ -87,9 +88,20 @@ export default function Randevular() {
     ) : true;
     
     const durumUyuyor = statusFilter ? r.durum.toString() === statusFilter : true;
-    
-    return aramaUyuyor && durumUyuyor;
+
+    const doktorUyuyor = doktorFilter ? r.doktorId?.toString() === doktorFilter : true;
+
+    return aramaUyuyor && durumUyuyor && doktorUyuyor;
   });
+
+  // Randevulardan benzersiz doktor listesi çıkar
+  const doktorListesi = Array.from(
+    new Map(
+      randevular
+        .filter(r => r.doktorId)
+        .map(r => [r.doktorId, { id: r.doktorId, ad: r.doktorAd, soyad: r.doktorSoyad, unvan: r.doktorUnvan }])
+    ).values()
+  );
 
   const totalPages = Math.ceil(filteredRandevular.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -154,6 +166,17 @@ export default function Randevular() {
             <option value="2">Onaylandı</option>
             <option value="3">Tamamlandı</option>
             <option value="4">İptal</option>
+          </select>
+
+          <select
+            value={doktorFilter}
+            onChange={(e) => setDoktorFilter(e.target.value)}
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          >
+            <option value="">Tüm Doktorlar</option>
+            {doktorListesi.map(d => (
+              <option key={d.id} value={d.id}>{d.unvan} {d.ad} {d.soyad}</option>
+            ))}
           </select>
         </div>
       </div>

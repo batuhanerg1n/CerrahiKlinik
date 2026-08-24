@@ -25,7 +25,8 @@ export default function Dashboard() {
     bekleyenRandevuSayisi: 0,
     aktifRandevuSayisi: 0,
     gunlukToplmHastaSayisi: 0,
-    gunlukToplamGelir: 0
+    gunlukToplamGelir: 0,
+    tamamlananRandevuSayisi: 0,
   });
   const [aylikPerformans, setAylikPerformans] = useState({
     doktorPerformanslari: [],
@@ -120,7 +121,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start mb-2">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">BUGÜNKÜ RANDEVU</span>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">BU GÜNÜN RANDEVULARI</span>
             <div className="bg-blue-50 p-2 rounded-lg text-blue-500"><Calendar className="w-4 h-4" /></div>
           </div>
           <h3 className="text-3xl font-bold text-slate-800">{ozet.bugunkuRandevuSayisi}</h3>
@@ -148,7 +149,7 @@ export default function Dashboard() {
             <div className="bg-emerald-50 p-2 rounded-lg text-emerald-500"><TrendingUp className="w-4 h-4" /></div>
           </div>
           <h3 className="text-3xl font-bold text-slate-800">{formatMoney(ozet.gunlukToplamGelir)}</h3>
-          <p className="text-xs text-slate-400 mt-1">{aylikPerformans.doktorPerformanslari.reduce((acc, curr) => acc + curr.tamamlananMuayeneSayisi, 0)} muayene tamamlandı</p>
+          <p className="text-xs text-slate-400 mt-1">{ozet.tamamlananRandevuSayisi} muayene tamamlandı</p>
         </div>
       </div>
 

@@ -158,6 +158,39 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             });
         }
 
+        public async Task<IEnumerable<RandevuDetailDto>> GetHastaRandevulariAsync(int hastaId)
+        {
+            var randevuRepo = _unitOfWork.GetRepository<Randevu>();
+            var randevular = await randevuRepo.GetWhere(r => r.HastaId == hastaId)
+                .Include(r => r.Hasta)
+                .Include(r => r.Doktor)
+                .Include(r => r.Islem)
+                .Include(r => r.IslemSecenek)
+                .OrderByDescending(r => r.Tarih)
+                .ToListAsync();
+
+            return randevular.Select(r => new RandevuDetailDto
+            {
+                Id = r.Id,
+                HastaId = r.HastaId,
+                HastaAd = r.Hasta?.Ad ?? "",
+                HastaSoyad = r.Hasta?.Soyad ?? "",
+                HastaTelefon = r.Hasta?.Telefon ?? "",
+                DoktorId = r.DoktorId,
+                DoktorAd = r.Doktor?.Ad ?? "",
+                DoktorSoyad = r.Doktor?.Soyad ?? "",
+                DoktorUnvan = r.Doktor?.Unvan ?? "",
+                IslemId = r.IslemId,
+                IslemAd = r.Islem?.Ad ?? "",
+                IslemFiyat = r.IslemSecenek != null ? r.IslemSecenek.Fiyat : (r.Islem?.Fiyat ?? 0),
+                Tarih = r.Tarih,
+                Saat = r.Saat,
+                Durum = r.Durum,
+                Kaynak = r.Kaynak,
+                HastaNotu = r.HastaNotu
+            });
+        }
+
         public async Task<IEnumerable<KullaniciListeDto>> GetKullanicilarAsync()
         {
             var kullaniciRepo = _unitOfWork.GetRepository<Kullanici>();
@@ -176,7 +209,7 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             });
         }
 
-        public async Task<PageResultDto<RandevuDetailDto>> GetRandevularAsync(string? query, RandevuDrum? drum, int pageIndex = 1, int PageSize = 10)
+        public async Task<PageResultDto<RandevuDetailDto>> GetRandevularAsync(string? query, RandevuDrum? drum, int? doktorId=null, int pageIndex = 1, int PageSize = 10)
         {
             var randevuRepo = _unitOfWork.GetRepository<Randevu>();
             var baseQuery = randevuRepo.GetWhere(r => true)
@@ -188,6 +221,10 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             if (drum.HasValue)
             {
                 baseQuery =baseQuery.Where(r=>r.Durum == drum.Value);
+            }
+            if (doktorId.HasValue)
+            {
+                baseQuery = baseQuery.Where(r => r.Durum == drum.Value);
             }
             if(!string.IsNullOrWhiteSpace(query))
             {

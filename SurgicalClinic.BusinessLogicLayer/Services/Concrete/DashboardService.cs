@@ -85,7 +85,8 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
                 BekleyenRandevuSayisi = bugunkiRandevular.Count(r => r.Durum == RandevuDrum.Beklemede),
                 AktifRandevuSayisi = bugunkiRandevular.Count(r => r.Durum == RandevuDrum.Onaylandi),
                 GunlukToplmHastaSayisi = bugunkiRandevular.Select(r => r.HastaId).Distinct().Count(),
-                GunlukToplamGelir = bugunkiRandevular.Where(r => r.Durum == RandevuDrum.Tamamlandi).Sum(r => GetRandevuFiyat(r))
+                GunlukToplamGelir = bugunkiRandevular.Where(r => r.Durum == RandevuDrum.Tamamlandi).Sum(r => GetRandevuFiyat(r)),
+                TamamlananRandevuSayisi = bugunkiRandevular.Count(r => r.Durum ==RandevuDrum.Tamamlandi)
             };
         }
 
