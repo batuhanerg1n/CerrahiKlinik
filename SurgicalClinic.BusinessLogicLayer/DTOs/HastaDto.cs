@@ -13,6 +13,7 @@ namespace SurgicalClinic.BusinessLogicLayer.DTOs
         public string   Ad { get; set; } = string.Empty;
         public string Soyad { get; set; } =string.Empty;
         public string Telefon { get; set; } = string.Empty;
+        public string? TcNo { get; set; }
         public DateTime DogumTarihi { get; set; }
         public string? Notlar { get; set; }
     }

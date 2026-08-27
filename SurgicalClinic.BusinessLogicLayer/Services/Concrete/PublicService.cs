@@ -122,6 +122,7 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
                     Ad = dto.HastaAd,
                     Soyad = dto.HastaSoyad,
                     Telefon = dto.HastaTelefon,
+                    TcNo = dto.HastaTcNo,
                     DogumTarihi = DateTime.MinValue
                 };
                 await hastaRepo.AddAsync(hasta);
