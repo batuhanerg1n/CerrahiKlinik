@@ -7,7 +7,6 @@ using SurgicalClinic.BusinessLogicLayer.Services.Concrete;
 using SurgicalClinic.DataAccessLayer.Abstract;
 using SurgicalClinic.DataAccessLayer.Concrete;
 using SurgicalClinic.DataAccessLayer.Context;
-
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +15,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // React uygulamasýnýn adresi
+        policy.WithOrigins(
+        "http://localhost:5173",
+        "https://cerrahiklinik.runasp.net"
+      )
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -52,10 +54,12 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
 builder.Services.AddOpenApi();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<INameMaskingService, NameMaskingService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -64,46 +68,53 @@ builder.Services.AddScoped<IPersonelPanelService, PersonelPanelService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IDoktorPanelService, DoktorPanelService>();
 
-var screteKey = builder.Configuration["JwtSettings:Secret"]?? "SuperSecretKeyForSurgicalClinicApi2026!";
-var key= Encoding.ASCII.GetBytes(screteKey);
+var screteKey = builder.Configuration["JwtSettings:Secret"] ?? "SuperSecretKeyForSurgicalClinicApi2026!";
+var key = Encoding.ASCII.GetBytes(screteKey);
 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme =JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer(options=>
+.AddJwtBearer(options =>
 {
     options.RequireHttpsMetadata = false;
     options.SaveToken = true;
-    options.TokenValidationParameters= new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
-        ValidateIssuerSigningKey= true,
-        IssuerSigningKey= new SymmetricSecurityKey(key),
-        ValidateIssuer= false,
-        ValidateAudience= false
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false
     };
-
 });
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var hataYolu = Path.Combine(app.Environment.ContentRootPath, "baslangic-hata.txt");
+        File.WriteAllText(hataYolu, ex.ToString());
+    }
+}
 
 app.UseCors("AllowReactApp");
 
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(C =>
-    {
-        C.SwaggerEndpoint("/swagger/v1/swagger.json", "Surgical Clinic API v1");
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Surgical Clinic API v1");
+});
 
-app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();
