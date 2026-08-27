@@ -237,10 +237,10 @@ export default function Dashboard() {
             {randevuKaynaklari.map((kaynak, index) => {
               let icon = <Globe className="w-4 h-4" />;
               let color = "bg-purple-100 text-purple-600";
-              let isim = kaynak.kaynak === 0 ? "Telefon" : kaynak.kaynak === 1 ? "WhatsApp" : "Online";
+              let isim = kaynak.kaynak === 1 ? "Telefon" : kaynak.kaynak === 2 ? "WhatsApp" : "Online";
 
-              if (kaynak.kaynak === 0) { icon = <Phone className="w-4 h-4" />; color = "bg-blue-100 text-blue-600"; }
-              if (kaynak.kaynak === 1) { icon = <MessageCircle className="w-4 h-4" />; color = "bg-emerald-100 text-emerald-600"; }
+              if (kaynak.kaynak === 1) { icon = <Phone className="w-4 h-4" />; color = "bg-blue-100 text-blue-600"; }
+              if (kaynak.kaynak === 2) { icon = <MessageCircle className="w-4 h-4" />; color = "bg-emerald-100 text-emerald-600"; }
 
               return (
                 <div key={index} className="flex items-center justify-between">

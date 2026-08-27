@@ -195,8 +195,8 @@ export default function Randevular() {
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-bold text-slate-800">{r.hastaAd} {r.hastaSoyad}</h3>
                   {getDurumBadge(r.durum)}
-                  {r.kaynak === 0 ? <Phone className="w-3.5 h-3.5 text-blue-400"/> : <Globe className="w-3.5 h-3.5 text-purple-400"/>}
-                </div>
+                   {r.kaynak === 1 ? <Phone className="w-3.5 h-3.5 text-blue-400" /> : <Globe className="w-3.5 h-3.5 text-purple-400" />}
+                 </div>
                 <p className="text-xs text-slate-500">{r.islemAd} • {r.doktorUnvan} {r.doktorAd} {r.doktorSoyad}</p>
               </div>
             </div>
@@ -462,7 +462,7 @@ export default function Randevular() {
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-500">Kaynak:</span>
-                  <span className="font-medium text-slate-800">{detayRandevu.kaynak === 0 ? "Telefon" : "Web / Online"}</span>
+                  <span className="font-medium text-slate-800">{detayRandevu.kaynak === 1 ? "Telefon" : "Web / Online"}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-500">Durum:</span>

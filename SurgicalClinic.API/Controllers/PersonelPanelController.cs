@@ -200,5 +200,14 @@ namespace SurgicalClinic.API.Controllers
             var result = await _personelService.GetHastaRandevulariAsync(id);
             return Ok(result);
         }
+
+        [HttpPost("randevular")]
+        public async Task<IActionResult> RandevuOlustur([FromBody] PersonelRandevuOlusturDto dto)
+        {
+            var (success, message) = await _personelService.PersonelRandevuOlusturAsync(dto);
+            if (!success)
+                return BadRequest(new { message });
+            return Ok(new { message });
+        }
     }
 }

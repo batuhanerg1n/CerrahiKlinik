@@ -126,11 +126,12 @@ export default function RandevuModal({isOpen, onClose, onSuccess}) {
                 islemId: parseInt(formData.islemId),
                 islemSecenekId: formData.islemSecenekId ? parseInt(formData.islemSecenekId) : null,
                 tarih: `${formData.tarih}T00:00:00.000Z`,
-                saat: `${formData.saat}:00`
+                saat: `${formData.saat}:00`,
+                kaynak:1
             };
             console.log("MODAL GÖNDERİLEN VERİ (PAYLOAD):", payload);
             console.log("HAM FORM DATA:", formData);
-            const response = await axiosInstance.post('/Public/online-randevu', payload);
+            const response = await axiosInstance.post('/PersonelPanel/randevular', payload);
             setSuccessMsg(response.data?.message || 'Randevu başarıyla oluşturuldu');
 
             if(onSuccess) onSuccess();

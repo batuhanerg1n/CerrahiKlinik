@@ -552,6 +552,57 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             return true;
         }
 
+        public async Task<(bool Success, string Message)> PersonelRandevuOlusturAsync(PersonelRandevuOlusturDto dto)
+        {
+            var randevuZamani = dto.Tarih.Date.Add(dto.Saat);
+            if (randevuZamani < DateTime.Now)
+                return (false, "Geçmiş bir tarih veya saate randevu oluşturulamaz.");
+
+            var randevuRepo = _unitOfWork.GetRepository<Randevu>();
+            var hastaRepo = _unitOfWork.GetRepository<Hasta>();
+
+            var slotDolumu = await randevuRepo.GetWhere(r =>
+                r.DoktorId == dto.DoktorId &&
+                r.Tarih.Date == dto.Tarih.Date &&
+                r.Saat == dto.Saat &&
+                r.Durum != RandevuDrum.Iptal).AnyAsync();
+
+            if (slotDolumu)
+                return (false, "Seçilen tarih ve saate doktorun bir randevusu bulunmaktadır.");
+
+            var hasta = await hastaRepo.GetWhere(h => h.Telefon == dto.HastaTelefon).FirstOrDefaultAsync();
+            if (hasta == null)
+            {
+                hasta = new Hasta
+                {
+                    Ad = dto.HastaAd,
+                    Soyad = dto.HastaSoyad,
+                    Telefon = dto.HastaTelefon,
+                    DogumTarihi = DateTime.MinValue
+                };
+                await hastaRepo.AddAsync(hasta);
+                await _unitOfWork.SaveChangeAsync();
+            }
+
+            var yeniRandevu = new Randevu
+            {
+                HastaId = hasta.Id,
+                DoktorId = dto.DoktorId,
+                IslemId = dto.IslemId,
+                IslemSecenekId = dto.IslemSecenekId,
+                Tarih = dto.Tarih.Date,
+                Saat = dto.Saat,
+                HastaNotu = dto.HastaNotu,
+                Durum = RandevuDrum.Beklemede,
+                Kaynak = (RandevuKaynak)dto.Kaynak,      
+                OlusturmaTarihi = DateTime.UtcNow
+            };
+            await randevuRepo.AddAsync(yeniRandevu);
+            await _unitOfWork.SaveChangeAsync();
+
+            return (true, "Randevu başarıyla oluşturuldu.");
+        }
+
         public async Task<bool> RandevuDurumGuncelleAsync(int randevuId, RandevuDrum yeniDurum)
         {
             var randevuRepo = _unitOfWork.GetRepository<Randevu>();
