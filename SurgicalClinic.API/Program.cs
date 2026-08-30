@@ -17,7 +17,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
         "http://localhost:5173",
-        "https://cerrahiklinik.runasp.net"
+        "https://cerrahiklinik.runasp.net",
+        "https://cerrahi-klinik.vercel.app"
       )
               .AllowAnyHeader()
               .AllowAnyMethod()

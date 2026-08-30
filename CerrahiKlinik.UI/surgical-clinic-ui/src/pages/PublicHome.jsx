@@ -313,7 +313,7 @@ export default function PublicHome() {
                           <option value="">-- İşlem Seçiniz --</option>
                           {islemler.map(i => (
                             <option key={i.id} value={i.id}>
-                              {i.ad} {i.fiyatTipi === 2 ? '(Seçenekli)' : `(${formatMoney(i.fiyat)})`}
+                              {i.ad}
                             </option>
                           ))}
                         </select>
@@ -326,7 +326,7 @@ export default function PublicHome() {
                             className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none">
                             <option value="">-- Seçenek Belirleyiniz --</option>
                             {seciliIslem.secenekler.map(s => (
-                              <option key={s.id} value={s.id}>{s.secenekAd} - {formatMoney(s.fiyat)}</option>
+                              <option key={s.id} value={s.id}>{s.secenekAd}</option>
                             ))}
                           </select>
                         </div>
@@ -382,13 +382,6 @@ export default function PublicHome() {
                               );
                             })}
                           </div>
-                        </div>
-                      )}
-
-                      {gosterilecekFiyat !== null && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 flex items-center justify-between">
-                          <span className="text-sm font-semibold text-blue-700">Tahmini Ücret</span>
-                          <span className="text-lg font-bold text-blue-800">{formatMoney(gosterilecekFiyat)}</span>
                         </div>
                       )}
 
