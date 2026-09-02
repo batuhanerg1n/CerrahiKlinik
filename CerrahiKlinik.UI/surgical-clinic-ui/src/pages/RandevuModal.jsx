@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { Calendar, User, Activity, CheckCircle, X, Phone} from "lucide-react";
+import { Calendar, User, Activity, CheckCircle, X, Phone, Bell} from "lucide-react";
 
 
 const MESAI_SAATLERI = [
@@ -21,6 +21,7 @@ export default function RandevuModal({isOpen, onClose, onSuccess}) {
     const [formData, setFormData] = useState({
         hastaAd:'', hastaSoyad:'', hastaTelefon:'', doktorId:'', islemId:'', islemSecenekId:'', tarih:'', saat:'', hastaNotu:'', kaynak:'1', durum:'1'
     });
+    const [bildirimGonder, setBildirimGonder] = useState(true);
 
 
     useEffect(() => {
@@ -259,6 +260,18 @@ export default function RandevuModal({isOpen, onClose, onSuccess}) {
                             </div>
 
                             <textarea name="hastaNotu" rows="2" value={formData.hastaNotu} onChange={handleChange} placeholder="Notunuz" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"> </textarea>
+
+                            <div className="flex items-center justify-between bg-slate-50 rounded-xl px-4 py-3">
+                                <div className="flex items-center gap-2">
+                                    <Bell className="w-4 h-4 text-slate-500" />
+                                    <span className="text-sm font-medium text-slate-700">Bildirim Gönder</span>
+                                    <span className="text-xs text-slate-400 hidden sm:inline">Randevu bilgileri hastaya SMS/E-posta olarak iletilecektir</span>
+                                </div>
+                                <button type="button" onClick={() => setBildirimGonder(!bildirimGonder)}
+                                    className={`relative w-11 h-6 rounded-full transition-colors ${bildirimGonder ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${bildirimGonder ? 'translate-x-5' : ''}`} />
+                                </button>
+                            </div>
                             <button type="submit" disabled={loading} className=" bg-blue-500  text-white hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition disabled:opacity-50">
                                 {loading ? 'Oluşturuluyor...' : 'Randevu Onayla'}
                             </button>
