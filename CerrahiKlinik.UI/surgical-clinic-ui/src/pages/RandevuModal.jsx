@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { Calendar, User, Activity, CheckCircle, X} from "lucide-react";
+import { Calendar, User, Activity, CheckCircle, X, Phone} from "lucide-react";
 
 
 const MESAI_SAATLERI = [
@@ -19,7 +19,7 @@ export default function RandevuModal({isOpen, onClose, onSuccess}) {
     const [minTarih, setMinTarih] = useState('');
 
     const [formData, setFormData] = useState({
-        hastaAd:'', hastaSoyad:'', hastaTelefon:'', doktorId:'', islemId:'', islemSecenekId:'', tarih:'', saat:'', hastaNotu:''
+        hastaAd:'', hastaSoyad:'', hastaTelefon:'', doktorId:'', islemId:'', islemSecenekId:'', tarih:'', saat:'', hastaNotu:'', kaynak:'1', durum:'1'
     });
 
 
@@ -127,7 +127,8 @@ export default function RandevuModal({isOpen, onClose, onSuccess}) {
                 islemSecenekId: formData.islemSecenekId ? parseInt(formData.islemSecenekId) : null,
                 tarih: `${formData.tarih}T00:00:00.000Z`,
                 saat: `${formData.saat}:00`,
-                kaynak:1
+                kaynak: parseInt(formData.kaynak),
+                durum: parseInt(formData.durum)
             };
             console.log("MODAL GÖNDERİLEN VERİ (PAYLOAD):", payload);
             console.log("HAM FORM DATA:", formData);
@@ -137,7 +138,7 @@ export default function RandevuModal({isOpen, onClose, onSuccess}) {
             if(onSuccess) onSuccess();
             
             setTimeout(() => {
-                setFormData({hastaAd:'', hastaSoyad:'', hastaTelefon:'', doktorId:'', islemId:'', tarih:'', saat:'', hastaNotu:''});
+                setFormData({hastaAd:'', hastaSoyad:'', hastaTelefon:'', doktorId:'', islemId:'', islemSecenekId:'', tarih:'', saat:'', hastaNotu:'', kaynak:'1', durum:'1'});
                 setSuccessMsg('');
                 onClose();
             }, 2000);
@@ -176,6 +177,25 @@ export default function RandevuModal({isOpen, onClose, onSuccess}) {
                                     <input type="text" name="hastaAd" required value={formData.hastaAd} onChange={handleChange} placeholder="Ad" className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                                     <input type="text" name="hastaSoyad" required value={formData.hastaSoyad} onChange={handleChange} placeholder="Soyad" className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                                     <input type="tel" name="hastaTelefon" required value={formData.hastaTelefon} onChange={handleChange} placeholder="Telefon Numara" className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <Phone className="w-4 h-4"/> Görüşme Türü
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <select name="kaynak" value={formData.kaynak} onChange={handleChange} className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <option value="1">Telefon</option>
+                                        <option value="2">WhatsApp</option>
+                                        <option value="3">Online</option>
+                                    </select>
+                                    <select name="durum" value={formData.durum} onChange={handleChange} className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <option value="1">Beklemede</option>
+                                        <option value="2">Onaylandı</option>
+                                        <option value="3">Tamamlandı</option>
+                                        <option value="4">İptal</option>
+                                    </select>
                                 </div>
                             </div>
 

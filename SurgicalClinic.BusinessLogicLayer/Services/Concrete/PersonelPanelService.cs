@@ -595,7 +595,7 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
                 Tarih = dto.Tarih.Date,
                 Saat = dto.Saat,
                 HastaNotu = dto.HastaNotu,
-                Durum = RandevuDrum.Beklemede,
+                Durum = (RandevuDrum)dto.Durum,
                 Kaynak = (RandevuKaynak)dto.Kaynak,      
                 OlusturmaTarihi = DateTime.UtcNow
             };

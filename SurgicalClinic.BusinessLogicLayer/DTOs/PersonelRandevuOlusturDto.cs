@@ -19,5 +19,6 @@ namespace SurgicalClinic.BusinessLogicLayer.DTOs
         public TimeSpan Saat { get; set; }
         public string? HastaNotu { get; set; }
         public int Kaynak { get; set; } = 1;
+        public int Durum { get; set; } = 1;
     }
 }
