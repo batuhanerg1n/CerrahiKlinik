@@ -15,6 +15,9 @@ namespace SurgicalClinic.Entities.Concrete
         public string Soyad { get; set; }=string.Empty;
         public string  Unvan  { get; set; } =string.Empty;
         public string Aciklama { get; set; }=string.Empty;
+        public string? DiplomaNo { get; set; }
+        public string? SicilNo { get; set; }
+        public string? TcNo { get; set; }
 
         public Kullanici? Kullanici { get; set; }
         public ICollection<DoktorBrans> DoktorBranslar { get; set; } = new List<DoktorBrans>();

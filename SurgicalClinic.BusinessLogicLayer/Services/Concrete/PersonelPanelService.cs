@@ -56,10 +56,30 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             if (doktor == null)
                 return (false, "Doktor bulunamadı.");
 
+            if (string.IsNullOrWhiteSpace(dto.DiplomaNo))
+                return (false, "Diploma numarası zorunludur.");
+            if (string.IsNullOrWhiteSpace(dto.SicilNo))
+                return (false, "Sicil numarası zorunludur.");
+            if (string.IsNullOrWhiteSpace(dto.TcNo) || dto.TcNo.Length != 11 || !dto.TcNo.All(char.IsDigit))
+                return (false, "TC Kimlik No 11 haneli ve sadece rakam olmalıdır.");
+
+            var diplomaVar = await doktorRepo.GetWhere(d => d.DiplomaNo == dto.DiplomaNo && d.Id != doktorId).AnyAsync();
+            if (diplomaVar)
+                return (false, "Bu diploma numarası başka bir doktora ait.");
+            var sicilVar = await doktorRepo.GetWhere(d => d.SicilNo == dto.SicilNo && d.Id != doktorId).AnyAsync();
+            if (sicilVar)
+                return (false, "Bu sicil numarası başka bir doktora ait.");
+            var tcVar = await doktorRepo.GetWhere(d => d.TcNo == dto.TcNo && d.Id != doktorId).AnyAsync();
+            if (tcVar)
+                return (false, "Bu TC Kimlik No başka bir doktora ait.");
+
             doktor.Ad = dto.Ad;
             doktor.Soyad = dto.Soyad;
             doktor.Unvan = dto.Unvan;
             doktor.Aciklama = dto.Aciklama;
+            doktor.DiplomaNo = dto.DiplomaNo;
+            doktor.SicilNo = dto.SicilNo;
+            doktor.TcNo = dto.TcNo;
 
             foreach (var eski in doktor.DoktorBranslar.ToList())
             {
@@ -85,6 +105,23 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             if (emailVar)
                 return (false, "Bu email adresi zaten kayıtlı.");
 
+            if (string.IsNullOrWhiteSpace(dto.DiplomaNo))
+                return (false, "Diploma numarası zorunludur.");
+            if (string.IsNullOrWhiteSpace(dto.SicilNo))
+                return (false, "Sicil numarası zorunludur.");
+            if (string.IsNullOrWhiteSpace(dto.TcNo) || dto.TcNo.Length != 11 || !dto.TcNo.All(char.IsDigit))
+                return (false, "TC Kimlik No 11 haneli ve sadece rakam olmalıdır.");
+
+            var diplomaVar = await doktorRepo.GetWhere(d => d.DiplomaNo == dto.DiplomaNo).AnyAsync();
+            if (diplomaVar)
+                return (false, "Bu diploma numarası zaten kayıtlı.");
+            var sicilVar = await doktorRepo.GetWhere(d => d.SicilNo == dto.SicilNo).AnyAsync();
+            if (sicilVar)
+                return (false, "Bu sicil numarası zaten kayıtlı.");
+            var tcVar = await doktorRepo.GetWhere(d => d.TcNo == dto.TcNo).AnyAsync();
+            if (tcVar)
+                return (false, "Bu TC Kimlik No zaten kayıtlı.");
+
             var kullanici = new Kullanici
             {
                 Ad = dto.Ad,
@@ -102,7 +139,10 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
                 Ad = dto.Ad,
                 Soyad = dto.Soyad,
                 Unvan = dto.Unvan,
-                Aciklama = dto.Aciklama
+                Aciklama = dto.Aciklama,
+                DiplomaNo = dto.DiplomaNo,
+                SicilNo = dto.SicilNo,
+                TcNo = dto.TcNo
             };
             foreach (var bransId in dto.BransIds)
             {
@@ -329,6 +369,9 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
                 Unvan = d.Unvan,
                 Aciklama =d.Aciklama,
                 Email = d.Kullanici?.Email ?? "",
+                DiplomaNo = d.DiplomaNo,
+                SicilNo = d.SicilNo,
+                TcNo = d.TcNo,
                 Branslar = d.DoktorBranslar.Select(db => db.Brans.Ad).ToList()
             });
         }
