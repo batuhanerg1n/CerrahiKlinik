@@ -18,6 +18,8 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedRandevu, setSelectedRandevu] = useState(null);
+  const [seciliDoktorlar, setSeciliDoktorlar] = useState([]);
+  const [doktorSecimAcik, setDoktorSecimAcik] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
 
   const [ozet, setOzet] = useState({
@@ -73,6 +75,14 @@ export default function Dashboard() {
   };
 
   const maxIslemGeliri = Math.max(...(aylikPerformans.islemGelirleri.map(i => i.toplamGelir) || [0]), 1);
+
+  const tumDoktorlar = [...(aylikPerformans.doktorPerformanslari || [])].sort((a, b) => b.toplamGelir - a.toplamGelir);
+  const gosterilecekDoktorlar = seciliDoktorlar.length > 0
+    ? tumDoktorlar.filter(d => seciliDoktorlar.includes(d.doktorTamAd))
+    : tumDoktorlar.slice(0, 5);
+  const toggleDoktor = (ad) => {
+    setSeciliDoktorlar(prev => prev.includes(ad) ? prev.filter(x => x !== ad) : [...prev, ad]);
+  };
 
   if (loading) {
     return <div className="flex h-screen items-center justify-center text-slate-500">Dashboard Yükleniyor...</div>;
@@ -187,12 +197,41 @@ export default function Dashboard() {
         </div>
 
         <div className="p-5 border-b border-slate-100">
-          <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-6">
-            <Stethoscope className="w-4 h-4 text-blue-500" /> Doktor Bazlı Gelir & Tamamlanan Muayene
-          </h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+              <Stethoscope className="w-4 h-4 text-blue-500" /> Doktor Bazlı Gelir & Tamamlanan Muayene
+            </h3>
+            <div className="relative">
+              <button onClick={() => setDoktorSecimAcik(!doktorSecimAcik)}
+                className="flex items-center gap-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50">
+                {seciliDoktorlar.length > 0 ? `${seciliDoktorlar.length} doktor seçili` : 'En çok gelirli 5 doktor'}
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+              {doktorSecimAcik && (
+                <div className="absolute right-0 mt-1 w-64 max-h-72 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-20 p-2">
+                  <div className="flex items-center justify-between px-2 py-1 mb-1 border-b border-slate-100">
+                    <span className="text-xs font-semibold text-slate-500">Doktor Seç</span>
+                    {seciliDoktorlar.length > 0 && (
+                      <button onClick={() => setSeciliDoktorlar([])} className="text-xs text-blue-600 hover:underline">Temizle</button>
+                    )}
+                  </div>
+                  {tumDoktorlar.length === 0 ? (
+                    <p className="text-xs text-slate-400 px-2 py-2">Doktor verisi yok.</p>
+                  ) : tumDoktorlar.map((d, i) => (
+                    <label key={i} className="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer">
+                      <input type="checkbox" checked={seciliDoktorlar.includes(d.doktorTamAd)}
+                        onChange={() => toggleDoktor(d.doktorTamAd)}
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                      <span className="text-xs text-slate-700 truncate">{d.doktorTamAd}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={aylikPerformans.doktorPerformanslari} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={gosterilecekDoktorlar} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="doktorTamAd" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} /> 
                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} tickFormatter={(value) => `${value / 1000}k ₺`} />
@@ -214,7 +253,7 @@ export default function Dashboard() {
             {aylikPerformans.islemGelirleri.map((islem, idx) => (
               <div key={idx}>
                 <div className="flex justify-between items-end mb-1">
-                  <span className="text-xs font-semibold text-slate-700">{islem.islemAd} <span className="text-slate-400 font-normal">({islem.toplamGelir > 0 ? "1" : "0"} adet)</span></span>
+                  <span className="text-xs font-semibold text-slate-700">{islem.islemAd} <span className="text-slate-400 font-normal">({islem.adet || 0} adet)</span></span>
                   <span className="text-xs font-bold text-slate-800">{formatMoney(islem.toplamGelir)}</span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2">

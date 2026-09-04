@@ -10,5 +10,6 @@ namespace SurgicalClinic.BusinessLogicLayer.DTOs
     {
         public string IslemAd { get; set; } = string.Empty;
         public decimal ToplamGelir { get; set; }
+        public int Adet { get; set; }
     }
 }

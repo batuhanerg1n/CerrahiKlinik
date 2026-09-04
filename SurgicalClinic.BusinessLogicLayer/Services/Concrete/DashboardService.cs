@@ -57,11 +57,12 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
 
             var islemGelirleri = aylikRandevular
                 .GroupBy(r => r.Islem.Ad)
-                .Select(g => new IslemGelirDto
-                {
-                    IslemAd = g.Key,
-                    ToplamGelir = g.Sum(r => GetRandevuFiyat(r))
-                }).ToList();
+               .Select(g => new IslemGelirDto
+               {
+                   IslemAd = g.Key,
+                   ToplamGelir = g.Sum(r => GetRandevuFiyat(r)),
+                   Adet = g.Count()
+               }).ToList();
             return new AylikPerformansDto
             {
                 DoktorPerformanslari = doktorPerformans,
