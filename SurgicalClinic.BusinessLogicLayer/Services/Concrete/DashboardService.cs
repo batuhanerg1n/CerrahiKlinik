@@ -29,11 +29,11 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             return r.Islem?.Fiyat ?? 0;
         }
 
-        public async Task<AylikPerformansDto> GetAylikPerformansAsync()
+        public async Task<AylikPerformansDto> GetAylikPerformansAsync(int? yil = null, int? ay = null)
         {
             var randevuRepo = _unitOfWork.GetRepository<Randevu>();
-            var buAy    =   DateTime.UtcNow.Month;
-            var buYil   = DateTime.UtcNow.Year;
+            var buAy = ay ?? DateTime.UtcNow.Month;
+            var buYil = yil ?? DateTime.UtcNow.Year;
 
             var aylikRandevular = await randevuRepo.GetWhere(r =>
             r.Tarih.Month == buAy &&

@@ -20,6 +20,17 @@ export default function Dashboard() {
   const [selectedRandevu, setSelectedRandevu] = useState(null);
   const [seciliDoktorlar, setSeciliDoktorlar] = useState([]);
   const [doktorSecimAcik, setDoktorSecimAcik] = useState(false);
+  const simdi = new Date();
+  const [seciliYil, setSeciliYil] = useState(simdi.getFullYear());
+  const [seciliAy, setSeciliAy] = useState(simdi.getMonth() + 1);
+  const [aySecimAcik, setAySecimAcik] = useState(false);
+
+  const AY_ADLARI = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const ayListesi = [];
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(simdi.getFullYear(), simdi.getMonth() - i, 1);
+    ayListesi.push({ yil: d.getFullYear(), ay: d.getMonth() + 1, label: `${AY_ADLARI[d.getMonth()]} ${d.getFullYear()}` });
+  }
   const [actionLoadingId, setActionLoadingId] = useState(null);
 
   const [ozet, setOzet] = useState({
@@ -39,14 +50,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [seciliYil, seciliAy]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       const [ozetRes, performansRes, kaynaklarRes, sonRandevularRes] = await Promise.all([
         axiosInstance.get('/Dashboard/ozet'),
-        axiosInstance.get('/Dashboard/aylik-performans'),
+        axiosInstance.get(`/Dashboard/aylik-performans?yil=${seciliYil}&ay=${seciliAy}`),
         axiosInstance.get('/Dashboard/randevu-kaynaklari'),
         axiosInstance.get('/Dashboard/son-randevular?limit=5')
       ]);
@@ -190,8 +201,22 @@ export default function Dashboard() {
                 {aylikPerformans.doktorPerformanslari.reduce((acc, curr) => acc + curr.tamamlananMuayeneSayisi, 0)}
               </p>
             </div>
-            <div className="border border-slate-200 rounded-lg px-3 py-1.5 flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
-              Ağustos 2026 <ChevronDown className="w-4 h-4 text-slate-400"/>
+            <div className="relative">
+              <button onClick={() => setAySecimAcik(!aySecimAcik)}
+                className="border border-slate-200 rounded-lg px-3 py-1.5 flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 hover:bg-slate-50">
+                {AY_ADLARI[seciliAy - 1]} {seciliYil} <ChevronDown className="w-4 h-4 text-slate-400"/>
+              </button>
+              {aySecimAcik && (
+                <div className="absolute right-0 mt-1 w-44 max-h-72 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-20 p-1">
+                  {ayListesi.map((a, i) => (
+                    <button key={i}
+                      onClick={() => { setSeciliYil(a.yil); setSeciliAy(a.ay); setAySecimAcik(false); }}
+                      className={`w-full text-left px-3 py-1.5 rounded text-sm hover:bg-slate-50 ${a.yil === seciliYil && a.ay === seciliAy ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-slate-700'}`}>
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

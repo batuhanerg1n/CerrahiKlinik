@@ -11,8 +11,8 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Abstract
     public interface IDashboardService
     {
         Task<DashboardOzetDto> GetOzetAsync();
-        Task<AylikPerformansDto> GetAylikPerformansAsync();
-        Task<IEnumerable<RandevuKaynakDagilimiDto>> GetRandevuKaynaklariAsync();
+        Task<AylikPerformansDto> GetAylikPerformansAsync(int? yil = null, int? ay = null); Task<IEnumerable<RandevuKaynakDagilimiDto>> GetRandevuKaynaklariAsync();
         Task<IEnumerable<SonRandevuDto>> GetSonRandevuAsync(Rol currentRole, int limit = 5);
+
     }
 }

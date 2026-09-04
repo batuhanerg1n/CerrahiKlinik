@@ -24,9 +24,9 @@ namespace SurgicalClinic.API.Controllers
         }
 
         [HttpGet("aylik-performans")]
-        public async Task<IActionResult> GetAylikPerformans()
+        public async Task<IActionResult> GetAylikPerformans([FromQuery] int? yil, [FromQuery] int? ay)
         {
-            var result = await _dashboardService.GetAylikPerformansAsync();
+            var result = await _dashboardService.GetAylikPerformansAsync(yil, ay);
             return Ok(result);
         }
 
