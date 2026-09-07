@@ -92,12 +92,12 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             });
         }
 
-        public async Task<(bool Success, string Message)> OnlineRandevuOlusturAsync(OnlineRandevuOlusturDto dto)
+        public async Task<OnlineRandevuSonucDto> OnlineRandevuOlusturAsync(OnlineRandevuOlusturDto dto)
         {
             var randevuZamani = dto.Tarih.Date.Add(dto.Saat);
             if (randevuZamani < DateTime.Now)
             {
-                return (false, "Geçmiş bir tarih veya saate randevu oluşturulamaz.");
+                return new OnlineRandevuSonucDto { Success = false, Message = "Geçmiş bir tarih veya saate randevu oluşturulamaz." };
             }
 
             var randevuRepo = _unitOfWork.GetRepository<Randevu>();
@@ -111,7 +111,7 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
 
             if (slotDolumu)
             {
-                return (false, "Seçilen tarih ve saate doktorun bir randevusu bulunmaktadır.");
+                return new OnlineRandevuSonucDto { Success = false, Message = "Seçilen tarih ve saate doktorun bir randevusu bulunmaktadır." };
             }
 
             var hasta = await hastaRepo.GetWhere(h => h.Telefon == dto.HastaTelefon).FirstOrDefaultAsync();
@@ -144,18 +144,27 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
                 OlusturmaTarihi = DateTime.UtcNow
             };
             await randevuRepo.AddAsync(yeniRandevu);
-
             try
             {
                 await _unitOfWork.SaveChangeAsync();
-                return (true, " Randevu talebiniz başarıyla oluşturuldu.");
+                var islemRepo = _unitOfWork.GetRepository<Islem>();
+                var islem = await islemRepo.GetWhere(i => i.Id == dto.IslemId).Include(i => i.Brans).FirstOrDefaultAsync();
+                string bransAd = islem?.Brans?.Ad ?? "";
 
+                return new OnlineRandevuSonucDto
+                {
+                    Success = true,
+                    Message = "Randevu talebiniz başarıyla oluşturuldu.",
+                    RandevuId = yeniRandevu.Id,
+                    ReferansNo = $"RND-{DateTime.Now.Year}-{yeniRandevu.Id:D4}",
+                    BransAd = bransAd
+                };
             }
-
             catch (DbUpdateConcurrencyException)
             {
-                return (false, "Aynı slot için eşzamanlı başka bir istek işelendi.Lütfen farklı bir saat seçiniz.");
+                return new OnlineRandevuSonucDto { Success = false, Message = "Aynı slot için eşzamanlı başka bir istek işlendi. Lütfen farklı bir saat seçiniz." };
             }
         }
     }
-}
+    }
+

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../api/axiosInstance';
+import jsPDF from 'jspdf';
 import {
   Calendar, Clock, User, Phone, CheckCircle, Stethoscope, Activity,
-  CreditCard, ArrowLeft, ArrowRight, X, PartyPopper
-} from 'lucide-react';
+  CreditCard, ArrowLeft, ArrowRight, X, PartyPopper, Download} from 'lucide-react';
 
 const MESAI_SAATLERI = [
   "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -26,6 +26,7 @@ export default function PublicHome() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [basarili, setBasarili] = useState(false);
+  const [randevuSonuc, setRandevuSonuc] = useState(null);
 
   const [formData, setFormData] = useState(bosForm);
 
@@ -76,6 +77,7 @@ export default function PublicHome() {
 
   const seciliIslem = islemler.find(i => i.id === parseInt(formData.islemId));
   const seciliSecenek = seciliIslem?.secenekler?.find(s => s.id === parseInt(formData.islemSecenekId));
+  const seciliDoktorObj = doktorlar.find(d => d.id === parseInt(formData.doktorId));
   const gosterilecekFiyat = seciliIslem
     ? (seciliIslem.fiyatTipi === 2 ? (seciliSecenek?.fiyat ?? null) : seciliIslem.fiyat)
     : null;
@@ -138,6 +140,42 @@ export default function PublicHome() {
     setAdim(2);
   };
 
+  const pdfIndir = () => {
+    const doc = new jsPDF();
+    const tr = (s) => String(s || '')
+      .replace(/ş/g,'s').replace(/Ş/g,'S').replace(/ğ/g,'g').replace(/Ğ/g,'G')
+      .replace(/ı/g,'i').replace(/İ/g,'I').replace(/ç/g,'c').replace(/Ç/g,'C')
+      .replace(/ö/g,'o').replace(/Ö/g,'O').replace(/ü/g,'u').replace(/Ü/g,'U');
+    const hastaAdSoyad = `${formData.hastaAd} ${formData.hastaSoyad}`;
+    const tarihStr = new Date(formData.tarih).toLocaleDateString('tr-TR');
+    const doktorAd = seciliDoktorObj ? `${seciliDoktorObj.unvan || ''} ${seciliDoktorObj.ad} ${seciliDoktorObj.soyad}` : '';
+    const bransAd = randevuSonuc?.bransAd || seciliIslem?.ad || '';
+    const referans = randevuSonuc?.referansNo || '';
+
+    doc.setFontSize(18); doc.setTextColor(37,99,235);
+    doc.text(tr('SurgicalClinic - Randevu Ozeti'), 20, 25);
+    doc.setDrawColor(37,99,235); doc.line(20, 30, 190, 30);
+
+    doc.setFontSize(12); doc.setTextColor(30,41,59);
+    let y = 45;
+    const satir = (label, deger) => {
+      doc.setFont(undefined,'bold'); doc.text(tr(label), 20, y);
+      doc.setFont(undefined,'normal'); doc.text(tr(deger), 75, y);
+      y += 12;
+    };
+    satir('Sayin:', hastaAdSoyad);
+    satir('Tarih / Saat:', `${tarihStr} / ${formData.saat}`);
+    satir('Poliklinik:', `${bransAd} Poliklinigi`);
+    satir('Hekim:', doktorAd);
+    satir('Referans No:', referans);
+
+    y += 8; doc.setFontSize(11); doc.setTextColor(16,185,129);
+    doc.text(tr('Randevunuz basariyla olusturuldu.'), 20, y);
+    y += 8; doc.setTextColor(100,116,139); doc.setFontSize(10);
+    doc.text(tr('Randevunuzdan 15 dk once hastanemizde olmaniz onerilir.'), 20, y);
+    doc.save(`randevu-${referans || 'ozet'}.pdf`);
+  };
+
   const handleSubmit = async () => {
     setErrorMsg('');
     if (!formData.islemId) { setErrorMsg('Lütfen işlem seçiniz.'); return; }
@@ -162,7 +200,8 @@ export default function PublicHome() {
         saat: `${formData.saat}:00`,
         hastaNotu: formData.hastaNotu
       };
-      await axiosInstance.post('/Public/online-randevu', payload);
+      const res = await axiosInstance.post('/Public/online-randevu', payload);
+      setRandevuSonuc(res.data);
       setBasarili(true);
     } catch (err) {
       setErrorMsg(err.response?.data?.message || 'Randevu oluşturulurken bir hata oluştu.');
@@ -222,18 +261,25 @@ export default function PublicHome() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
 
             {basarili ? (
-              <div className="p-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-                  <PartyPopper className="w-8 h-8 text-emerald-600" />
+              <div className="p-6 sm:p-8">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-3">
+                    <PartyPopper className="w-8 h-8 text-emerald-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800">Randevunuz Oluşturuldu!</h3>
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Randevunuz Oluşturuldu!</h3>
-                <p className="text-sm text-slate-500 mb-6">
-                  Randevu talebiniz alındı. En kısa sürede onaylanacaktır.
-                </p>
-                <button onClick={modalKapat}
-                  className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition">
-                  Tamam
-                </button>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-3 text-sm">
+                  <div className="flex justify-between"><span className="text-slate-500">Sayın</span><span className="font-semibold text-slate-800">{formData.hastaAd} {formData.hastaSoyad}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">Tarih / Saat</span><span className="font-semibold text-slate-800">{new Date(formData.tarih).toLocaleDateString('tr-TR')} / {formData.saat}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">Poliklinik</span><span className="font-semibold text-slate-800">{randevuSonuc?.bransAd || seciliIslem?.ad} Polikliniği</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">Hekim</span><span className="font-semibold text-slate-800">{seciliDoktorObj?.unvan} {seciliDoktorObj?.ad} {seciliDoktorObj?.soyad}</span></div>
+                  <div className="flex justify-between border-t border-slate-200 pt-3"><span className="text-slate-500">Referans No</span><span className="font-bold text-blue-600">{randevuSonuc?.referansNo}</span></div>
+                </div>
+                <p className="text-xs text-slate-500 text-center mt-4">Randevunuzdan <b>15 dk önce</b> hastanemizde olmanız önerilir.</p>
+                <div className="flex gap-3 mt-6">
+                  <button onClick={pdfIndir} className="flex-1 py-2.5 rounded-lg border border-blue-200 text-blue-700 font-bold hover:bg-blue-50 flex items-center justify-center gap-2 transition"><Download className="w-4 h-4" /> PDF İndir</button>
+                  <button onClick={modalKapat} className="flex-1 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition">Tamam</button>
+                </div>
               </div>
             ) : (
               <>

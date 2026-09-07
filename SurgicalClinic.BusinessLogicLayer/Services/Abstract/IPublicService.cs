@@ -11,7 +11,7 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Abstract
     {
         Task<IEnumerable<DoktorDto>> GetDoktorlarAsync(int? bransId=null);
         Task<IEnumerable<IslemDto>> GetIslemlerAsync();
-        Task<(bool Success, string Message)> OnlineRandevuOlusturAsync(OnlineRandevuOlusturDto dto);
+        Task<OnlineRandevuSonucDto> OnlineRandevuOlusturAsync(OnlineRandevuOlusturDto dto);
         Task<IEnumerable<TimeSpan>> GetDoluSaatlerAsync(int doktorId, DateTime tarih);
         Task<IEnumerable<BransDto>> GetBranslarAsync();
     }

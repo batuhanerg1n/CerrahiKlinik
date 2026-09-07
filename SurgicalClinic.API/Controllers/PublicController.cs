@@ -30,10 +30,10 @@ namespace SurgicalClinic.API.Controllers
         [HttpPost("online-randevu")]
         public async Task<IActionResult> OnlineRandevuOlustur([FromBody] OnlineRandevuOlusturDto dto)
         {
-            var (success, message) = await _publicService.OnlineRandevuOlusturAsync(dto);
-            if (!success) 
-                return BadRequest(new { message });
-            return Ok(new { message });
+            var result = await _publicService.OnlineRandevuOlusturAsync(dto);
+            if (!result.Success)
+                return BadRequest(new { message = result.Message });
+            return Ok(result);
         }
 
         [HttpGet("dolu-saatler")]
