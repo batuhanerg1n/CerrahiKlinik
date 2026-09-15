@@ -68,6 +68,7 @@ builder.Services.AddScoped<IPublicService, PublicService>();
 builder.Services.AddScoped<IPersonelPanelService, PersonelPanelService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IDoktorPanelService, DoktorPanelService>();
+builder.Services.AddScoped<IGorevService, GorevService>();
 
 var screteKey = builder.Configuration["JwtSettings:Secret"] ?? "SuperSecretKeyForSurgicalClinicApi2026!";
 var key = Encoding.ASCII.GetBytes(screteKey);

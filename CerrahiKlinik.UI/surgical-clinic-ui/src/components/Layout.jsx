@@ -8,7 +8,8 @@ import {
   Stethoscope, 
   Settings, 
   LogOut, 
-  HomeIcon
+  HomeIcon,
+  ClipboardList
 } from 'lucide-react';
 
 export default function Layout() {
@@ -25,6 +26,7 @@ export default function Layout() {
     { name: 'Randevular', path: '/randevular', icon: <CalendarDays className="w-5 h-5" /> },
     { name: 'Hastalar', path: '/hastalar', icon: <Users className="w-5 h-5" /> },
     { name: 'Doktorlar', path: '/doktorlar', icon: <Stethoscope className="w-5 h-5" /> },
+    { name: 'Görevler', path: '/gorevler', icon: <ClipboardList className="w-5 h-5" /> },
     { name: 'Ayarlar', path: '/ayarlar', icon: <Settings className="w-5 h-5" /> },
     {name:'Kullanicilar', path:'/kullanicilar', icon : <Users className='w-5 h-5'/>},
   ];

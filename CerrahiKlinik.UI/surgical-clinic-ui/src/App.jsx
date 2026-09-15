@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-
 import { AuthProvider, useAuth } from './context/AuthContext'; 
-
+import Gorevler from './pages/Gorevler';
+import PersonelGorevler from './pages/PersonelGorevler';
 import ProtectedRoute from './components/ProtectedRoute'; 
 import Layout from './components/Layout';               
 import DoktorLayout from './components/DoktorLayout';   
@@ -53,6 +53,7 @@ function MainRoutes() {
             <Route path="/doktorlar" element={<Doktorlar />} />
             <Route path="/kullanicilar" element={<Kullanicilar />} />
             <Route path="/hastalar" element={<Hastalar />} />
+            <Route path="/gorevler" element={<Gorevler />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute allowedRoles={[4]} />}>
@@ -65,6 +66,7 @@ function MainRoutes() {
           <Route path="/personel" element={<PersonelLayout />}>
             <Route path="randevular" element={<Randevular />} />
             <Route path="hastalar" element={<Hastalar />} />
+            <Route path="gorevler" element={<PersonelGorevler />} />
           </Route>
         </Route>
         <Route path="*" element={

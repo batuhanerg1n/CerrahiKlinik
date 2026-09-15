@@ -14,6 +14,7 @@ export default function PersonelLayout() {
 
   const menuItems = [
     { name: 'Randevular', path: '/personel/randevular', icon: <CalendarDays className="w-5 h-5" /> },
+    { name: 'Görevler', path: '/personel/gorevler', icon: <ClipboardList className="w-5 h-5" /> },
     { name: 'Hastalar', path: '/personel/hastalar', icon: <Users className="w-5 h-5" /> }
   ];
 
