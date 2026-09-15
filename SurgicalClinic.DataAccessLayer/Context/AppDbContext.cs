@@ -20,6 +20,7 @@ namespace SurgicalClinic.DataAccessLayer.Context
         public DbSet<Islem> Islemler { get; set; }
         public DbSet<Randevu> Randevular { get; set; }
         public DbSet<IslemSecenek> IslemSecenekler { get; set; }
+        public DbSet<Gorev> Gorevler { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -90,6 +91,11 @@ namespace SurgicalClinic.DataAccessLayer.Context
                 .WithMany()
                 .HasForeignKey( i=>i.BransId)
                 .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Gorev>()
+                .HasOne(g => g.AtananPersonel)
+                .WithMany()                                  
+                .HasForeignKey(g => g.AtananPersonelId)
+                .OnDelete(DeleteBehavior.Cascade);
 
         }
 
