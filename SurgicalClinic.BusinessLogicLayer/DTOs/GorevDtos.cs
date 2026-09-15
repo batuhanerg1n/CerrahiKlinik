@@ -27,7 +27,13 @@ namespace SurgicalClinic.BusinessLogicLayer.DTOs
         public DateTime BaslangicZamani { get; set; }
         public DateTime? BitisZamani { get; set; }
         public GorevDurumu Durum { get; set; }
+        public string? PersonelNotu { get; set; }
         public DateTime OlusturulmaTarihi { get; set; }
         public DateTime? TamamlanmaTarihi { get; set; }
+
+    }
+    public class GorevNotDto
+    {
+        public string? Not { get; set; }
     }
 }

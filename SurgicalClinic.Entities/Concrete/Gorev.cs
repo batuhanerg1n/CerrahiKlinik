@@ -6,16 +6,18 @@ namespace SurgicalClinic.Entities.Concrete
     {
         public int Id { get; set; }
         public string Baslik { get; set; } = string.Empty;
-        public string? Aciklama { get; set; }            // metin / not kısmı
+        public string? Aciklama { get; set; }            
 
-        public int AtananPersonelId { get; set; }        // -> Kullanici.Id (Rol=Personel)
+        public int AtananPersonelId { get; set; }        
         public Kullanici AtananPersonel { get; set; } = null!;
 
-        public DateTime BaslangicZamani { get; set; }    // "şu saate" / aralık başı
-        public DateTime? BitisZamani { get; set; }       // aralık bitişi (opsiyonel)
+        public DateTime BaslangicZamani { get; set; }    
+        public DateTime? BitisZamani { get; set; }       
 
         public GorevDurumu Durum { get; set; } = GorevDurumu.Bekliyor;
+        public string? PersonelNotu { get; set; }
         public DateTime OlusturulmaTarihi { get; set; } = DateTime.Now;
         public DateTime? TamamlanmaTarihi { get; set; }
+        
     }
 }

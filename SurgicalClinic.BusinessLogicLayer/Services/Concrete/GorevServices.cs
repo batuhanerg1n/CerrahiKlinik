@@ -11,16 +11,6 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
     {
         private readonly IUnitOfWork _unitOfWork;
         public GorevService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
-        public async Task<IEnumerable<GorevDto>> GetGorevlerimAsync(int kullaniciId)
-        {
-            return await _unitOfWork.GetRepository<Gorev>()
-                .GetWhere(g => g.AtananPersonelId == kullaniciId)
-                .Include(g => g.AtananPersonel)
-                .OrderByDescending(g => g.OlusturulmaTarihi)
-                .Select(g => Map(g)).ToListAsync();
-        }
-
-
 
         public async Task<(bool Success, string Message)> GorevOlusturAsync(GorevOlusturDto dto)
         {
@@ -49,6 +39,59 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             return (true, "Görev atandı.");
         }
 
+        public async Task<PageResultDto<GorevDto>> GetTumGorevlerAsync(int? personelId, GorevDurumu? durum, int pageIndex, int pageSize)
+        {
+            var query = _unitOfWork.GetRepository<Gorev>()
+                .GetWhere(g => true).Include(g => g.AtananPersonel).AsQueryable();
+
+            if (personelId.HasValue) query = query.Where(g => g.AtananPersonelId == personelId);
+            if (durum.HasValue) query = query.Where(g => g.Durum == durum);
+
+            return await SayfalaAsync(query, pageIndex, pageSize);
+        }
+
+        public async Task<PageResultDto<GorevDto>> GetGorevlerimAsync(int kullaniciId, int pageIndex, int pageSize)
+        {
+            var query = _unitOfWork.GetRepository<Gorev>()
+                .GetWhere(g => g.AtananPersonelId == kullaniciId)
+                .Include(g => g.AtananPersonel).AsQueryable();
+
+            return await SayfalaAsync(query, pageIndex, pageSize);
+        }
+
+        public async Task<(bool Success, string Message)> GorevTamamlaAsync(int gorevId, int kullaniciId, string? not)
+        {
+            var gorevRepo = _unitOfWork.GetRepository<Gorev>();
+            var gorev = await gorevRepo.GetByIdAsync(gorevId);
+            if (gorev == null) return (false, "Görev bulunamadı.");
+            if (gorev.AtananPersonelId != kullaniciId) return (false, "Bu görev size ait değil.");
+            if (gorev.Durum == GorevDurumu.Tamamlandi) return (false, "Görev zaten tamamlanmış.");
+            if (gorev.Durum == GorevDurumu.Iptal) return (false, "İptal edilmiş görev tamamlanamaz.");
+
+            gorev.Durum = GorevDurumu.Tamamlandi;
+            gorev.PersonelNotu = not;
+            gorev.TamamlanmaTarihi = DateTime.Now;
+            gorevRepo.Update(gorev);
+            await _unitOfWork.SaveChangeAsync();
+            return (true, "Görev tamamlandı.");
+        }
+
+        public async Task<(bool Success, string Message)> GorevIptalAsync(int gorevId, int kullaniciId, string? not)
+        {
+            var gorevRepo = _unitOfWork.GetRepository<Gorev>();
+            var gorev = await gorevRepo.GetByIdAsync(gorevId);
+            if (gorev == null) return (false, "Görev bulunamadı.");
+            if (gorev.AtananPersonelId != kullaniciId) return (false, "Bu görev size ait değil.");
+            if (gorev.Durum == GorevDurumu.Tamamlandi) return (false, "Tamamlanmış görev iptal edilemez.");
+            if (gorev.Durum == GorevDurumu.Iptal) return (false, "Görev zaten iptal edilmiş.");
+
+            gorev.Durum = GorevDurumu.Iptal;
+            gorev.PersonelNotu = not;
+            gorevRepo.Update(gorev);
+            await _unitOfWork.SaveChangeAsync();
+            return (true, "Görev iptal edildi.");
+        }
+
         public async Task<bool> GorevSilAsync(int gorevId)
         {
             var gorevRepo = _unitOfWork.GetRepository<Gorev>();
@@ -59,21 +102,26 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             return true;
         }
 
-        public async Task<(bool Success, string Message)> GorevTamamlaAsync(int gorevId, int kullaniciId)
+        private static async Task<PageResultDto<GorevDto>> SayfalaAsync(IQueryable<Gorev> query, int pageIndex, int pageSize)
         {
-            var gorevRepo = _unitOfWork.GetRepository<Gorev>();
-            var gorev = await gorevRepo.GetByIdAsync(gorevId);
-            if (gorev == null) return (false, "Görev bulunamadı.");
-            if (gorev.AtananPersonelId != kullaniciId)
-                return (false, "Bu görev size ait değil.");
-            if (gorev.Durum == GorevDurumu.Tamamlandi)
-                return (false, "Görev zaten tamamlanmış.");
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 5;
 
-            gorev.Durum = GorevDurumu.Tamamlandi;
-            gorev.TamamlanmaTarihi = DateTime.Now;
-            gorevRepo.Update(gorev);
-            await _unitOfWork.SaveChangeAsync();
-            return (true, "Görev tamamlandı.");
+            var toplam = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(g => g.OlusturulmaTarihi)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(g => Map(g))
+                .ToListAsync();
+
+            return new PageResultDto<GorevDto>
+            {
+                Items = items,
+                TotalCount = toplam,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
         }
 
         private static GorevDto Map(Gorev g) => new()
@@ -86,20 +134,10 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Concrete
             BaslangicZamani = g.BaslangicZamani,
             BitisZamani = g.BitisZamani,
             Durum = g.Durum,
+            PersonelNotu =g.PersonelNotu,
             OlusturulmaTarihi = g.OlusturulmaTarihi,
             TamamlanmaTarihi = g.TamamlanmaTarihi
         };
-
-        public async Task<IEnumerable<GorevDto>> GetTumGorevlerAsync(int? personelId, GorevDurumu? durum)
-        {
-            var query = _unitOfWork.GetRepository<Gorev>()
-                .GetWhere(g => true).Include(g => g.AtananPersonel).AsQueryable();
-
-            if (personelId.HasValue) query = query.Where(g => g.AtananPersonelId == personelId);
-            if (durum.HasValue) query = query.Where(g => g.Durum == durum);
-
-            return await query.OrderByDescending(g => g.OlusturulmaTarihi)
-                .Select(g => Map(g)).ToListAsync();
-        }
     }
 }
+        

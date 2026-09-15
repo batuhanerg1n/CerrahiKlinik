@@ -29,25 +29,35 @@ namespace SurgicalClinic.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Tumu([FromQuery] int? personelId, [FromQuery] GorevDurumu? durum)
+        public async Task<IActionResult> Tumu([FromQuery] int? personelId, [FromQuery] GorevDurumu? durum,
+            [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 5)
         {
-            var result = await _gorevService.GetTumGorevlerAsync(personelId, durum);
+            var result = await _gorevService.GetTumGorevlerAsync(personelId, durum, pageIndex, pageSize);
             return Ok(result);
         }
 
         [HttpGet("benim")]
         [Authorize(Roles = "Personel")]
-        public async Task<IActionResult> Benim()
+        public async Task<IActionResult> Benim([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 5)
         {
-            var result = await _gorevService.GetGorevlerimAsync(AktifKullaniciId);
+            var result = await _gorevService.GetGorevlerimAsync(AktifKullaniciId, pageIndex, pageSize);
             return Ok(result);
         }
 
         [HttpPut("{id}/tamamla")]
         [Authorize(Roles = "Personel")]
-        public async Task<IActionResult> Tamamla(int id)
+        public async Task<IActionResult> Tamamla(int id, [FromBody] GorevNotDto? dto)
         {
-            var (success, message) = await _gorevService.GorevTamamlaAsync(id, AktifKullaniciId);
+            var (success, message) = await _gorevService.GorevTamamlaAsync(id, AktifKullaniciId, dto?.Not);
+            if (!success) return BadRequest(new { message });
+            return Ok(new { message });
+        }
+
+        [HttpPut("{id}/iptal")]
+        [Authorize(Roles = "Personel")]
+        public async Task<IActionResult> Iptal(int id, [FromBody] GorevNotDto? dto)
+        {
+            var (success, message) = await _gorevService.GorevIptalAsync(id, AktifKullaniciId, dto?.Not);
             if (!success) return BadRequest(new { message });
             return Ok(new { message });
         }

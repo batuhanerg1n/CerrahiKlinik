@@ -12,9 +12,10 @@ namespace SurgicalClinic.BusinessLogicLayer.Services.Abstract
     public interface IGorevService
     {
         Task<(bool Success, string Message)> GorevOlusturAsync(GorevOlusturDto dto);
-        Task<IEnumerable<GorevDto>> GetTumGorevlerAsync(int? personelId, GorevDurumu? durum);
-        Task<IEnumerable<GorevDto>> GetGorevlerimAsync(int kullaniciId);
-        Task<(bool Success, string Message)> GorevTamamlaAsync(int gorevId, int kullaniciId);
+        Task<PageResultDto<GorevDto>> GetTumGorevlerAsync(int? personelId, GorevDurumu? durum, int pageIndex, int pageSize);
+        Task<PageResultDto<GorevDto>> GetGorevlerimAsync(int kullaniciId, int pageIndex, int pageSize);
+        Task<(bool Success, string Message)> GorevTamamlaAsync(int gorevId, int kullaniciId, string? not);
+        Task<(bool Success, string Message)> GorevIptalAsync(int gorevId, int kullaniciId, string? not);
         Task<bool> GorevSilAsync(int gorevId);
     }
 }

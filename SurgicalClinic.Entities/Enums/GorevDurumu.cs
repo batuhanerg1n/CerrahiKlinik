@@ -9,6 +9,7 @@ namespace SurgicalClinic.Entities.Enums
     public enum GorevDurumu
     {
         Bekliyor = 1,
-        Tamamlandi = 2
+        Tamamlandi = 2,
+        Iptal = 3
     }
 }
