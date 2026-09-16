@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SurgicalClinic.DataAccessLayer.Context;
 
@@ -11,9 +12,11 @@ using SurgicalClinic.DataAccessLayer.Context;
 namespace SurgicalClinic.DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260916122641_AmelitahthaneMG")]
+    partial class AmelitahthaneMG
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,26 +101,6 @@ namespace SurgicalClinic.DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Ameliyathaneler");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Ad = "Ameliyathane 1",
-                            Aktif = true
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Ad = "Ameliyathane 2",
-                            Aktif = true
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Ad = "Ameliyathane 3",
-                            Aktif = true
-                        });
                 });
 
             modelBuilder.Entity("SurgicalClinic.Entities.Concrete.Brans", b =>

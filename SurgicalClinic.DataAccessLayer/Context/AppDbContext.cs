@@ -21,6 +21,8 @@ namespace SurgicalClinic.DataAccessLayer.Context
         public DbSet<Randevu> Randevular { get; set; }
         public DbSet<IslemSecenek> IslemSecenekler { get; set; }
         public DbSet<Gorev> Gorevler { get; set; }
+        public DbSet<Ameliyat> Ameliyatlar { get; set; }
+        public DbSet<Ameliyathane> Ameliyathaneler { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -96,6 +98,27 @@ namespace SurgicalClinic.DataAccessLayer.Context
                 .WithMany()                                  
                 .HasForeignKey(g => g.AtananPersonelId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Ameliyat>()
+                .HasOne(a => a.Hasta).WithMany()
+                .HasForeignKey(a => a.HastaId).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Ameliyat>()
+                .HasOne(a => a.Doktor).WithMany()
+                .HasForeignKey(a => a.DoktorId).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Ameliyat>()
+                .HasOne(a => a.Ameliyathane).WithMany(o => o.Ameliyatlar)
+                .HasForeignKey(a => a.AmeliyathaneId).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Ameliyat>()
+                .HasOne(a => a.Islem).WithMany()
+                .HasForeignKey(a => a.IslemId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Ameliyathane>().HasData(
+                new Ameliyathane { Id = 1, Ad = "Ameliyathane 1", Aktif = true },
+                new Ameliyathane { Id = 2, Ad = "Ameliyathane 2", Aktif = true },
+                new Ameliyathane { Id = 3, Ad = "Ameliyathane 3", Aktif = true }
+);
+
 
         }
 
